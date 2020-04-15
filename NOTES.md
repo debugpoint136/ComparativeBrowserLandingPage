@@ -1,0 +1,6 @@
+- when source is selected, mark that node in brighter yellow
+- grey out and remove pointer and click event from other that don't comply to the source
+- wait for next clickable node and target to be set
+- setTargets(options, if multiple)
+- on refresh, set the target to coral
+- selection[ { source: "", target: "" }, { source: "", target: "" }] make dotted arcs to show connection
