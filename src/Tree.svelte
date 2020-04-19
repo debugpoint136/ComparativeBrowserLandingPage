@@ -5,8 +5,8 @@
   import { Cart } from './stores/Cart.js';
   import List from './List.svelte';
   import ResetButton from './ResetButton.svelte';
-  const newick = createNewick();
 
+  const newick = createNewick();
 
   let selector;
   let sourceOptions;
@@ -44,25 +44,32 @@
     unsubscribe();
   });
 
+  function drawTree() {
+    const constructedTree = new Phylogram(selector, newick, {
+      width: window.innerWidth * .7,
+      height: window.innerHeight * .8,
+      skipLabels: true,
+      skipTicks: false,
+      skipBranchLengthScaling: false
+    }, STATE).build();
+  }
   
   beforeUpdate(() => {
     console.log('kicking before!')
-    const constructedTree = new Phylogram(selector, newick, {
-      width: 300,
-      height: 400
-    }, STATE).build();
+    drawTree();
   });
   afterUpdate(() => {
     console.log('kicking again!')
-    const constructedTree = new Phylogram(selector, newick, {
-      width: 300,
-      height: 400,
-    }, STATE).build();
+    drawTree();
   });
 </script>
 
-<ResetButton/>
-<div id="phylogram" bind:this={selector} />
-{#if $Cart.sourceChecked === '' && $Cart.sourceOptions.length > 0}
-   <List data={sourceOptions} on:option-select={message}/>
-{/if}
+<!-- <ResetButton/> -->
+<div class="flex">
+<div class="ml-20">
+  <div id="phylogram" bind:this={selector} />
+</div>
+<div id="tooltip" class="origin-top-right absolute right-0 mr-48 w-128 rounded-md shadow-lg">
+  <!-- something -->
+</div>
+</div>

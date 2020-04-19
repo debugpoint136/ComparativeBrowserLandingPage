@@ -1,5 +1,9 @@
 import {GENOMES} from './genomes_compatibility';
+import TREEDATA from '../json/metadata.js';
 
+const isolates = TREEDATA.map(d => d.isolate);
+const ISOLATEscale = d3.scale.category10().domain(isolates);
+          
 /**
  * setSourceOptions, setTargetOptions, setSourceChecked, setTargetChecked
  *    sourceOptions: [],
@@ -18,6 +22,9 @@ export default class Phylogram {
     this.state_data = state.data;
   }
 
+  getValueFromJSON(key) {
+    return TREEDATA.filter(d => d.accession === key)
+  }
   checkIfAssemblyinSpecies(species, assembly) {
     return GENOMES
       .filter(d => d.key === assembly && d.name === species)
@@ -82,6 +89,7 @@ export default class Phylogram {
     const {sourceChecked} = this.state_data;
     const getTargetSpeciesCandidates = this.getTargetSpeciesCandidates;
     const checkIfAssemblyinSpecies = this.checkIfAssemblyinSpecies;
+    const getValueFromJSON = this.getValueFromJSON;
 
     const leafnode = vis
       .selectAll('g.leaf.node')
@@ -97,7 +105,7 @@ export default class Phylogram {
           return 5;
         }
       })
-      .attr('stroke', 'yellowGreen')
+      // .attr('stroke', 'yellowGreen')
       .attr('fill', (d) => {;
         if (sourceChecked !== '') {
           if (getTargetSpeciesCandidates(d.name, sourceChecked).indexOf(d.name) > -1) {
@@ -106,7 +114,13 @@ export default class Phylogram {
             return 'grey';
           }
         } else {
-          return 'greenYellow';
+          const tmp = getValueFromJSON(d.name);
+          if (tmp.length) {
+            return ISOLATEscale(tmp[0].isolate);
+          } else {
+            // return 'greenYellow';
+            return 'gray'
+          }
         }
 
       })
@@ -132,10 +146,12 @@ export default class Phylogram {
         d3
           .select(this)
           .attr({
-            fill: "lightBlue",
-            r: 5 * 2
+            // fill: "lightBlue",
+            r: 5 * 3
           });
         }
+        const tmp = getValueFromJSON(d.name)[0];
+        d3.select('#tooltip').html(`${tmp.accession}</br>${tmp.isolate || ''}<br/>${tmp.location || ''}`);
       })
       .on("mouseout", function (d) {
         if (sourceChecked !== '') {
@@ -147,8 +163,9 @@ export default class Phylogram {
         } else {
           d3
             .select(this)
-            .attr({fill: "greenYellow", r: 5});
+            .attr({ r: 5});
         }
+        d3.select('#tooltip').html('');
       })
       .on("click", function (d) {
         d3
